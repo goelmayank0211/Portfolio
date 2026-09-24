@@ -1,0 +1,3984 @@
+/* =======================================================
+   style.css — Mohammad Aatif Portfolio
+   Author  : Mohammad Aatif
+   Purpose : Main stylesheet for the portfolio website.
+             Optimized for 144 FPS smooth rendering.
+             Includes: global styles, components, animations,
+             light/dark themes, responsive layout, and
+             all page-specific styles (no inline CSS needed).
+======================================================= */
+
+/* =======================================================
+   1. GLOBAL RESET & BASE STYLES
+======================================================= */
+
+/* Reset default margin, padding, and box model for all elements */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* Remove tap highlight on mobile for cleaner interactions */
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Base HTML element — scroll padding keeps anchor targets below the fixed navbar */
+html {
+    /* scroll-behavior is intentionally removed; JS handles smooth scrolling */
+    scroll-padding-top: 80px;
+    background: #050816;
+    background-color: #050816 !important;
+    /* Crisp, fast font rendering across browsers */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* CSS custom properties — dark theme defaults (overridden in light theme section) */
+:root {
+    --primary: #00d4ff;
+    --secondary: #0099ff;
+    --accent: #00ffaa;
+    --dark: #0a0e27;
+    --darker: #050816;
+    --light: #ffffff;
+    --text: #e6f1ff;
+    --gray: #1a0f3a;
+}
+
+/* Body defaults: font, background gradient, text color, no horizontal overflow */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #050816 0%, #0a0e27 50%, #050816 100%);
+    color: var(--text);
+    overflow-x: hidden; /* Side scrollbar ko rokta hai */
+    width: 100%;
+}
+
+
+/* Font display swap prevents invisible text during font load */
+@font-face {
+  font-family: 'Segoe UI';
+  font-display: swap;
+}
+
+/* =======================================================
+   2. KEYFRAME ANIMATIONS
+======================================================= */
+
+/* Floating geometric shapes in the background — smooth 3D drift loop */
+@keyframes floatShape {
+    0%   { transform: translateY(0)     rotate(0deg)   scale(1)    translateZ(0);   opacity: 0.12; }
+    20%  { transform: translateY(-18vh) rotate(72deg)  scale(1.07) translateZ(10px); opacity: 0.20; }
+    40%  { transform: translateY(-42vh) rotate(152deg) scale(0.92) translateZ(28px); opacity: 0.16; }
+    60%  { transform: translateY(-54vh) rotate(224deg) scale(1.10) translateZ(38px); opacity: 0.22; }
+    80%  { transform: translateY(-28vh) rotate(306deg) scale(0.96) translateZ(14px); opacity: 0.18; }
+    100% { transform: translateY(0)     rotate(360deg) scale(1)    translateZ(0);   opacity: 0.12; }
+}
+
+/* Code symbols rising from bottom to top — buttery linear glide */
+@keyframes floatCode {
+    0%   { transform: translateY(112vh) translateX(0px);   opacity: 0;    }
+    8%   { opacity: 0.28; }
+    92%  { opacity: 0.28; }
+    100% { transform: translateY(-118vh) translateX(14px); opacity: 0;    }
+}
+
+/* Profile photo glow pulse — gentle breathe effect */
+@keyframes smoothGlow {
+    0%,100% { transform: scale(1);    opacity: 0.55; }
+    50%     { transform: scale(1.04); opacity: 1;    }
+}
+
+/* Gradient color shift for headings — slow drift */
+@keyframes gradientShift {
+    0%   { background-position: 0%   50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0%   50%; }
+}
+
+/* Typing cursor blink — soft fade instead of a harsh snap */
+@keyframes smoothBlink {
+    0%,45%,100% { opacity: 1; }
+    55%,90%     { opacity: 0; }
+}
+
+/* Hero section content entrance — smooth lift from below */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(28px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+/* Gentle float animation for the mobile menu profile photo */
+@keyframes float {
+    0%,100% { transform: translateY(0);   }
+    50%     { transform: translateY(-7px); }
+}
+
+/* Project sub-page load animations — slide, scale, and rotate variants */
+@keyframes page-load-slide-and-scale-in {
+    from { opacity: 0; transform: translateX(32px) scale(0.96); }
+    to   { opacity: 1; transform: translateX(0)    scale(1);    }
+}
+
+@keyframes page-load-rotate-in {
+    from { opacity: 0; transform: scale(0.92) rotateZ(-6deg); }
+    to   { opacity: 1; transform: scale(1)    rotateZ(0deg);  }
+}
+
+@keyframes page-load-slide-from-bottom {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Simple fade-in for sub-page container on load */
+@keyframes page-fade-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+@keyframes page-load-fade-in-long {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* =======================================================
+   3. BACKGROUND ANIMATION CONTAINER
+======================================================= */
+
+/* Fixed full-screen container for canvas + floating elements */
+.bg-animation {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    overflow: hidden;
+    transform: translateZ(0);
+    pointer-events: none;
+}
+.bg-animation canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Common styles for floating geometric shapes */
+.geometric-shape {
+    position: absolute;
+    opacity: 0.32;
+    animation: floatShape 26s infinite cubic-bezier(0.45, 0.05, 0.55, 0.95);
+    pointer-events: none;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    filter: blur(0.3px);
+}
+
+/* Circle-type floating shape */
+.shape-circle {
+    border: 2px solid transparent;
+    border-radius: 50%;
+    background: transparent;
+    box-shadow: 0 0 12px rgba(0,212,255,0.35), inset 0 0 12px rgba(0,212,255,0.1);
+    outline: 2px solid rgba(0,212,255,0.4);
+}
+
+/* Square-type floating shape */
+.shape-square {
+    border: 2px solid rgba(168,85,247,0.5);
+    box-shadow: 0 0 14px rgba(168,85,247,0.3), inset 0 0 8px rgba(168,85,247,0.1);
+}
+
+/* Floating code/keyword symbols rising through the background */
+.code-symbol {
+    position: absolute;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    color: var(--primary);
+    opacity: 0;
+    animation: floatCode 11s infinite linear;
+    pointer-events: none;
+    will-change: transform, opacity;
+    text-shadow: 0 0 10px rgba(0,212,255,0.7), 0 0 20px rgba(0,212,255,0.3);
+    letter-spacing: 0.05em;
+}
+
+/* =======================================================
+   4. NAVIGATION BAR
+======================================================= */
+
+/* Fixed top navbar with glass morphism background */
+nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(10, 14, 39, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1000;
+    padding-top: 0.1rem;
+    padding-bottom: 0.3rem;
+    box-shadow: 0 4px 20px rgba(0, 212, 255, 0.2);
+    border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+    transform: translateZ(0);
+    /* overflow:visible so the border is not clipped */
+    overflow: visible;
+}
+
+/* Navbar inner flex container — max-width centered */
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    /* overflow hidden hata diya - ye buttons ko clip kar raha tha */
+}
+
+/* Logo container: stacks "Portfolio" and "Mohammad Aatif" vertically */
+.nav-logo-container {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+    order: 1;
+    flex-shrink: 0; /* Logo never shrinks */
+    flex-grow: 0;
+}
+
+/* "Portfolio" gradient text logo */
+.nav-logo {
+    font-size: 1.1rem;
+    font-weight: bold;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    background-clip: text; /* standard property for compatibility */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 1px;
+}
+
+/* Sub-label beneath the logo */
+.nav-subtext {
+    font-size: 0.60rem;
+    color: var(--text);
+    opacity: 0.7;
+    letter-spacing: 0.5px;
+}
+
+/* Hamburger menu button — hidden on desktop, shown on mobile */
+.menu-toggle {
+    right: 10px;
+    display: none; /* Hidden on desktop; shown on mobile */
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 0rem;
+    z-index: 1001;
+    order: 3;
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+/* The three lines of the hamburger icon */
+.menu-toggle span {
+    width: 20px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 3px;
+    /* Optimized transition: Sirf transform animate hoga, 'all' nahi */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Top line rotates to form the X when menu is open */
+.menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+}
+
+/* Middle line fades out when menu is open */
+.menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+/* Bottom line rotates to form the X when menu is open */
+.menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Hide hamburger when open — the injected close button takes over */
+.menu-toggle.active {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+/* Nav links list — horizontal scrollable row on desktop */
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: nowrap;
+    margin: 0;
+    /* Upar/neeche padding - border visible rahe */
+    padding: 0.4rem 0.5rem;
+    order: 4;
+    /* Scrollable - jab buttons overflow hon */
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: smooth;
+    /* This shrinks to keep the logo and switch safe */
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* Hide the scrollbar on nav link row */
+nav ul::-webkit-scrollbar {
+    display: none;
+}
+
+/* Mobile menu header (photo + name + typing text) — hidden on desktop */
+.mobile-menu-header {
+    display: none;
+}
+
+/* Individual nav link button style */
+nav a {
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.35s cubic-bezier(0.22,1,0.36,1),
+                background 0.35s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.35s cubic-bezier(0.22,1,0.36,1),
+                transform 0.35s cubic-bezier(0.34,1.56,0.64,1),
+                box-shadow 0.35s cubic-bezier(0.22,1,0.36,1);
+    padding: 0.3rem 0.5rem;
+    font-size: 0.70rem;
+    min-width: 110px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(26, 31, 58, 0.6));
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 20px;
+    white-space: nowrap;
+    will-change: transform;
+}
+
+/* Nav link hover state */
+nav a:hover {
+    color: var(--primary);
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(26, 31, 58, 0.8));
+    border-color: var(--primary);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 18px rgba(0, 212, 255, 0.35);
+}
+
+/* =======================================================
+   5. LIGHT / DARK THEME TOGGLE SWITCH
+======================================================= */
+
+/* Wrapper for the theme toggle switch */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+    margin-left: 0.75rem;
+    flex-shrink: 0;
+    flex-grow: 0;
+    order: 2;
+    margin-top: 5px;
+}
+
+/* Toggle switch outer box */
+.theme-switch {
+    position: relative;
+    display: inline-block;
+    width: 53px;
+    height: 28px;
+    /* Input elements par touch area optimize */
+    touch-action: manipulation;
+}
+
+/* Hide the actual checkbox input (visual toggle replaces it) */
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Slider track background */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: -0.1rem;
+    left: 0;
+    right: 0;
+    bottom: 0rem;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(26, 31, 58, 0.6));
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    border-radius: 26px;
+    transition: 0.4s;
+}
+
+/* Slider thumb (the circle that moves) */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 15px;
+    width: 15px;
+    left: 6px;
+    bottom: 7px;
+    background-color: var(--primary);
+    border-radius: 50%;
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), background-color 0.4s; /* Only transform */
+}
+
+/* Sun and moon icon base styles inside the toggle */
+.slider .sun-icon, .slider .moon-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    color: #f1c40f;
+}
+
+/* Sun icon position — left side of toggle */
+.slider .sun-icon {
+    left: 7px;
+}
+
+/* Moon icon position — right side of toggle */
+.slider .moon-icon {
+    right: 7px;
+}
+
+/* Slider background in light mode (checked state) */
+input:checked + .slider {
+    background: linear-gradient(135deg, #e0eafc, #cfdef3);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Thumb moves right in light mode */
+input:checked + .slider:before {
+    transform: translateX(24px);
+    background-color: var(--primary);
+}
+
+/* Show sun icon in light mode */
+html[data-theme="light"] .slider .sun-icon { opacity: 1; }
+/* Show moon icon in dark mode */
+html[data-theme="dark"] .slider .moon-icon { opacity: 1; }
+
+/* =======================================================
+   6. HERO SECTION
+======================================================= */
+
+/* Hero takes full viewport height, content centered */
+.hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding-top: 100px;
+    position: relative;
+    z-index: 1;
+
+}
+
+/* Fade-in animation on hero content */
+.hero-content {
+    animation: fadeInUp 1.1s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+/* Circular profile photo with border */
+.profile-photo {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    margin: 0 auto 2rem;
+    border: 4px solid var(--primary);
+    background-image: url('Images/Aatif\ -\ CEO.jpg');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Glow ring behind the profile photo */
+.profile-photo::after {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: -4px;
+    right: -4px;
+    bottom: -4px;
+    border-radius: 50%;
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+    animation: smoothGlow 3s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
+    z-index: 1;
+    will-change: transform, opacity;
+}
+@keyframes float3D {
+    0%,100% { transform: translateY(0)    translateZ(0)    scale(1);     }
+    50%     { transform: translateY(-12px) translateZ(18px) scale(1.025); }
+}
+
+.profile-photo {
+    animation: float3D 5s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
+    transform-style: preserve-3d;
+}
+
+
+/* Greeting text style */
+.greeting {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, var(--light), var(--text));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+    font-weight: 300;
+}
+
+/* Main hero heading with gradient animation */
+.hero h1 {
+    font-size: 4rem;
+    background: linear-gradient(135deg, var(--primary), var(--light), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+    background-size: 200% auto;
+    animation: gradientShift 4s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
+}
+
+/* Container for the typing animation text */
+.typing-animation {
+    font-size: 1.8rem;
+    color: var(--text);
+    margin-bottom: 2rem;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Animated typing text */
+.typing-text {
+    padding-right: 5px;
+    color: var(--primary);
+    position: relative;
+}
+
+/* Blinking cursor after typing text */
+.typing-text::after,
+.mobile-typing-text::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 10%;
+    height: 80%;
+    background: var(--primary);
+    animation: smoothBlink 0.7s infinite;
+    }
+
+/* Desktop cursor width */
+.typing-text::after {
+    width: 3px;
+}
+
+/* Mobile cursor width */
+.mobile-typing-text::after {
+    width: 2px;
+}
+
+/* Sub-title below the main heading */
+.hero h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+/* Hero paragraph text */
+.hero p {
+    font-size: 1.1rem;
+    opacity: 0.8;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* =======================================================
+   7. GENERAL CONTENT — SECTION BOX, CARD, BUTTONS
+======================================================= */
+
+/* Main content wrapper — max-width centered with padding.
+   The page-fade-in animation runs on sub-pages when the container loads. */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+    animation: page-fade-in 0.4s ease;
+}
+
+/* Vertical padding for each section */
+section {
+    padding: 5rem 0;
+}
+
+/* Large section wrapper box with glass background */
+.section-box {
+    background: linear-gradient(135deg, rgba(26, 31, 58, 0.8), rgba(10, 14, 39, 0.8));
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    border-radius: 20px;
+    padding: 3rem;
+    box-shadow: 0 10px 25px -5px rgba(0, 212, 255, 0.25);
+    transition: transform 0.6s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.5s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.6s cubic-bezier(0.22,1,0.36,1);
+    will-change: transform, box-shadow;
+}
+
+/* Section box hover: lift and glow */
+.section-box:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 28px 36px -10px rgba(0, 212, 255, 0.55);
+    border-color: var(--accent);
+}
+
+/* Section heading with animated gradient sweep */
+.section-title {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 0.9rem;
+    background: linear-gradient(135deg, var(--primary), var(--light), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: gradientShift 3s ease infinite;
+    }
+
+/* Small decorative divider shown under every section heading */
+.title-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0 auto 1rem;
+}
+
+.title-divider .divider-line {
+    width: 38px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary));
+}
+
+.title-divider .divider-line:last-child {
+    background: linear-gradient(90deg, var(--primary), transparent);
+}
+
+.title-divider .divider-dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--primary);
+    box-shadow: 0 0 10px var(--primary);
+}
+
+/* One-line subtitle shown under the divider, above section content */
+.section-subtitle {
+    text-align: center !important;
+    color: var(--text);
+    opacity: 0.75;
+    font-size: 1rem;
+    max-width: 620px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.5;
+}
+
+/* Responsive auto-fit grid for cards */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+#web .cards-grid{
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width:768px){
+    #web .cards-grid{
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Card component — glass background with glow border */
+.card {
+    background: linear-gradient(135deg, rgba(26, 31, 58, 0.6), rgba(51, 60, 100, 0.4));
+    padding: 2rem;
+    border-radius: 15px;
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    transition: transform 0.55s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.45s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.55s cubic-bezier(0.22,1,0.36,1);
+    box-shadow: 0 0 14px 2px rgba(0, 212, 255, 0.22);
+    will-change: transform, box-shadow;
+    transform: translateZ(0);
+}
+
+/* Card hover: lift and glow */
+.card:hover {
+    transform: translateY(-10px) scale(1.01);
+    box-shadow: 0 0 26px 5px rgba(0, 212, 255, 0.40);
+    border-color: var(--primary);
+}
+
+/* Card heading */
+.card h3 {
+    color: var(--primary);
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+}
+
+/* Icon / picture slot shown beside the heading in Experience cards.
+   Replace the <img src="..."> inside .card-icon with your own picture —
+   it will automatically be cropped into the rounded square. */
+.card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.18), rgba(0, 212, 255, 0.05));
+    border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.card-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Row that places the picture/icon to the left of the heading + duration */
+.card-header-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.card-header-row .card-icon {
+    margin-bottom: 0;
+}
+
+.card-header-row .card-header-text h3 {
+    margin-bottom: 0.3rem;
+    font-size: 1.15rem;   /* heading size — change this number to resize heading */
+}
+
+.card-header-row .card-header-text p {
+    margin: 0;
+    font-size: 0.9rem;    /* duration size — change this number to resize duration text */
+}
+
+/* Unstyled list inside cards */
+.card ul {
+    list-style: none;
+    padding-left: 0;
+    color: var(--text);
+    line-height: 1.6;
+    margin-top: 0.5rem;
+}
+
+/* List item inside card */
+.card ul li {
+    padding: 0.25rem 0;
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    display: flex;
+    align-items: flex-start;
+}
+
+/* No border on last list item */
+.card ul li:last-child {
+    border-bottom: none;
+}
+
+/* Arrow prefix on list items */
+.card ul li::before {
+    content: "▸ ";
+    color: var(--primary);
+    font-weight: bold;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+}
+
+/* Remove arrow prefix from project-details-list */
+.card ul.project-details-list li::before {
+    content: none;
+}
+
+/* Project details list item layout */
+.card ul.project-details-list li {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+}
+
+/* Bold label in project details list */
+.card ul.project-details-list li strong {
+    min-width: 100px;
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+    color: var(--primary);
+    position: relative;
+    top: -2px;
+}
+
+/* Project card image */
+.project-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    border: 2px solid rgba(0, 212, 255, 0.4);
+}
+
+/* Primary action button */
+.project-button {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.2rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: var(--darker);
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 20px;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1),
+                box-shadow 0.35s cubic-bezier(0.22,1,0.36,1),
+                background 0.35s ease;
+    box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);
+    will-change: transform;
+}
+
+/* Primary button hover state */
+.project-button:hover {
+    transform: translateY(-4px) scale(1.06);
+    box-shadow: 0 10px 24px rgba(0, 212, 255, 0.55);
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+}
+
+/* Project description block */
+.project-description {
+    margin-top: 1.5rem;
+}
+
+.project-description h4 {
+    color: var(--primary);
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+
+.project-description p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    opacity: 0.9;
+    text-align: justify;
+}
+
+/* =======================================================
+   8. SKILLS SECTION
+======================================================= */
+
+/* Auto-fit grid for skill boxes */
+.skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* Individual skill item box */
+.skill-item {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(26, 31, 58, 0.6));
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    transition: transform 0.5s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.4s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.5s cubic-bezier(0.22,1,0.36,1);
+    text-align: center;
+    box-shadow: 0 0 12px 2px rgba(0, 212, 255, 0.22);
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Skill box hover: lift, scale, glow ring */
+.skill-item:hover {
+    transform: translateY(-7px) scale(1.04);
+    box-shadow: 0 18px 36px rgba(0, 212, 255, 0.38), 0 0 0 1px rgba(0,212,255,0.4);
+    border-color: var(--primary);
+}
+
+/* Skill item heading */
+.skill-item h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+}
+
+/* =======================================================
+   9. EDUCATION TIMELINE
+======================================================= */
+
+/* Timeline container */
+.timeline {
+    position: relative;
+    padding: 2rem 0;
+}
+
+/* Vertical line running through the timeline */
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--primary), var(--accent));
+}
+
+/* Each education entry row */
+.timeline-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 2rem 0;
+    position: relative;
+}
+
+/* Odd items align to the left */
+.timeline-item:nth-child(odd) .timeline-content {
+    margin-right: auto;
+    text-align: right;
+    padding-right: 3rem;
+}
+
+/* Even items align to the right */
+.timeline-item:nth-child(even) .timeline-content {
+    margin-left: auto;
+    text-align: left;
+    padding-left: 3rem;
+}
+
+/* Education content card */
+.timeline-content {
+    width: 45%;
+    background: linear-gradient(135deg, rgba(26, 31, 58, 0.8), rgba(51, 60, 100, 0.6));
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    transition: transform 0.55s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.45s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.55s cubic-bezier(0.22,1,0.36,1);
+    box-shadow: 0 0 14px 2px rgba(0, 212, 255, 0.22);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Education card hover: scale, lift, glow */
+.timeline-content:hover {
+    transform: scale(1.04) translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: 0 14px 32px -4px rgba(0, 212, 255, 0.42);
+}
+
+/* Education card heading */
+.timeline-content h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+/* Dot on the timeline center line */
+.timeline-dot {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background: var(--primary);
+    border-radius: 50%;
+    border: 4px solid var(--dark);
+    z-index: 2;
+}
+
+/* University/college circular logo */
+.education-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+/* Text area next to the logo */
+.education-text {
+    flex-grow: 1;
+}
+
+/* Education card link button */
+.education-button {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.75rem;
+    color: var(--darker);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    text-decoration: none;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1),
+                box-shadow 0.35s cubic-bezier(0.22,1,0.36,1),
+                background 0.35s ease;
+    will-change: transform;
+}
+
+/* Education button hover state */
+.education-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 18px rgba(0, 212, 255, 0.55);
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+}
+
+/* =======================================================
+   10. CERTIFICATIONS SECTION
+======================================================= */
+
+/* Vertical list of certification entries */
+.certificate-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+/* Individual certificate entry */
+.certificate-item {
+    padding: 0;
+    border: none;
+    background: none;
+}
+
+.certificate-item:hover {
+    background: none;
+    border: none;
+}
+
+/* Certificate name text */
+.certificate-item p {
+    font-weight: 500;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+/* Arrow prefix on certificate name */
+.certificate-item p::before {
+    content: "▸ ";
+    color: var(--primary);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+/* View certificate button */
+.certificate-button {
+    display: inline-block;
+    padding: 0.3rem 0.6rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: var(--darker);
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.75rem;
+    border-radius: 20px;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1),
+                box-shadow 0.35s cubic-bezier(0.22,1,0.36,1),
+                background 0.35s ease;
+    box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);
+    margin-left: 1.5rem;
+    will-change: transform;
+}
+
+/* View certificate button hover */
+.certificate-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 18px rgba(0, 212, 255, 0.55);
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+}
+
+/* =======================================================
+   11. ACHIEVEMENTS SECTION
+======================================================= */
+
+/* Individual achievement card */
+.achievement-card {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(26, 31, 58, 0.6));
+    padding: 2rem;
+    border-radius: 15px;
+    border: 2px solid rgba(0, 212, 255, 0.4);
+    margin: 1.5rem 0;
+    transition: transform 0.55s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.45s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.55s cubic-bezier(0.22,1,0.36,1);
+    box-shadow: 0 0 14px 2px rgba(0, 212, 255, 0.22);
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* Achievement card hover: slide right + glow */
+.achievement-card:hover {
+    transform: translateX(10px) scale(1.01);
+    border-color: var(--primary);
+    box-shadow: 0 0 22px 4px rgba(0, 212, 255, 0.38);
+}
+
+/* Achievement card heading */
+.achievement-card h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+/* =======================================================
+   12. CONTACT SECTION
+======================================================= */
+
+/* Contact section top area: download button + OR divider */
+.contact-actions {
+    text-align: center;
+    margin-bottom: 2.5rem; /* Social links se gap */
+}
+
+/* Contact section subtitle text */
+.contact-actions p.contact-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+/* Download card description */
+.contact-actions p.card-description {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    max-width: 800px;
+    margin: -0.5rem auto 1.5rem auto;
+    line-height: 1.6;
+}
+
+/* Larger download button in contact section */
+.contact-actions .project-button {
+    font-size: 1rem;
+    padding: 0.8rem 2rem;
+}
+
+/* Horizontal divider with "OR" label */
+.contact-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 2.5rem 0 2rem 0; /* Upar/neeche gap */
+}
+
+/* Lines on either side of "OR" text */
+.contact-divider::before,
+.contact-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+}
+
+/* "OR" label text */
+.contact-divider span {
+    padding: 0 1.5rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--primary);
+    opacity: 0.8;
+}
+
+/* Auto-fit grid for social link buttons */
+.social-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* Social link button */
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(26, 31, 58, 0.6));
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    border-radius: 50px;
+    text-decoration: none;
+    color: var(--text);
+    transition: background 0.45s cubic-bezier(0.22,1,0.36,1),
+                transform 0.45s cubic-bezier(0.34,1.56,0.64,1),
+                border-color 0.4s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.45s cubic-bezier(0.22,1,0.36,1);
+    font-weight: 500;
+    box-shadow: 0 0 14px 2px rgba(0, 212, 255, 0.22);
+    will-change: transform;
+}
+
+/* Social link hover: lift, glow */
+.social-link:hover {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(26, 31, 58, 0.8));
+    transform: translateY(-6px) scale(1.02);
+    border-color: var(--primary);
+    box-shadow: 0 14px 28px rgba(0, 212, 255, 0.38);
+}
+
+/* Social link icon size */
+.social-link span:first-child {
+    font-size: 1.5rem;
+}
+
+/* =======================================================
+   13. FOOTER
+======================================================= */
+
+/* Footer at the bottom of every page */
+footer {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(10, 14, 39, 0.95);
+    margin-top: 5rem;
+    border-top: 2px solid rgba(0, 212, 255, 0.3);
+}
+
+/* =======================================================
+   14. LIGHT THEME OVERRIDES
+======================================================= */
+
+/* Override CSS variables for light mode */
+html[data-theme="light"] {
+    --primary: #007bff;
+    --secondary: #0056b3;
+    --accent: #28a745;
+    --dark: #f4f7fa;
+    --darker: #ffffff;
+    --light: #212529;
+    --text: #343a40;
+    --gray: #e9ecef;
+    background: #f0f4ff;
+    background-color: #f0f4ff !important;
+}
+
+/* Light theme: global background and text */
+
+html[data-theme="light"] body {
+    background: linear-gradient(135deg, #f4f7fa 0%, #ffffff 100%);
+    color: var(--text);
+}
+
+html[data-theme="light"] .bg-animation {
+    opacity: 0.5;
+}
+html[data-theme="light"] .geometric-shape {
+    border-color: var(--primary);
+    opacity: 0.2;
+}
+html[data-theme="light"] .shape-square {
+    border-color: var(--accent);
+}
+html[data-theme="light"] .code-symbol {
+    color: var(--primary);
+    opacity: 0.15;
+}
+
+/* Light theme: navigation bar */
+
+html[data-theme="light"] nav {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+}
+html[data-theme="light"] .nav-logo {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+html[data-theme="light"] .nav-subtext,
+html[data-theme="light"] nav a {
+    color: var(--text);
+}
+html[data-theme="light"] nav a {
+    background: rgba(0, 123, 255, 0.05);
+    border: 1px solid rgba(0, 123, 255, 0.3);
+}
+html[data-theme="light"] nav a:hover {
+    color: var(--primary);
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 123, 255, 0.15));
+    border-color: var(--primary);
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+}
+html[data-theme="light"] .menu-toggle span {
+    background: var(--primary);
+}
+
+/* Light theme: hero section */
+
+html[data-theme="light"] .profile-photo {
+    border-color: var(--primary);
+}
+html[data-theme="light"] .profile-photo::after {
+    box-shadow: 0 0 40px rgba(0, 123, 255, 0.6);
+}
+html[data-theme="light"] .greeting {
+    background: linear-gradient(135deg, var(--light), var(--text));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+html[data-theme="light"] .hero h1,
+html[data-theme="light"] .section-title {
+    background: linear-gradient(135deg, var(--primary), var(--light), var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation-name: gradientShift;
+}
+html[data-theme="light"] .typing-text,
+html[data-theme="light"] .mobile-typing-text {
+    color: var(--primary);
+}
+html[data-theme="light"] .typing-text::after,
+html[data-theme="light"] .mobile-typing-text::after {
+    background: var(--primary);
+}
+
+/* Light theme: section boxes and cards */
+
+/* Light theme section box gradient */
+html[data-theme="light"] .section-box {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.7), rgba(230, 240, 255, 0.7));
+    border: 2px solid rgba(0, 123, 255, 0.3);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.10);
+}
+/* Light theme section box hover */
+html[data-theme="light"] .section-box:hover {
+    box-shadow: 0 25px 35px -10px rgba(0, 123, 255, 0.28);
+    border-color: var(--secondary);
+}
+
+/* Light theme card gradient */
+html[data-theme="light"] .card {
+    background: linear-gradient(to right, rgba(230, 240, 255, 0.6), rgba(255, 255, 255, 0.6));
+    border: 2px solid rgba(0, 123, 255, 0.3);
+    box-shadow: 0 0 12px 2px rgba(0, 0, 0, 0.08);
+}
+/* Light theme card hover */
+html[data-theme="light"] .card:hover {
+    box-shadow: 0 0 20px 3px rgba(0, 123, 255, 0.25);
+    border-color: var(--primary);
+}
+
+/* Light theme card text colors */
+html[data-theme="light"] .card h3,
+html[data-theme="light"] .card ul.project-details-list li strong,
+html[data-theme="light"] .project-description h4,
+html[data-theme="light"] .card ul li::before {
+    color: var(--primary);
+}
+html[data-theme="light"] .card ul li {
+    border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+html[data-theme="light"] .project-image {
+    border-color: rgba(0, 123, 255, 0.3);
+}
+
+/* Light theme button styles */
+html[data-theme="light"] .project-button,
+html[data-theme="light"] .certificate-button,
+html[data-theme="light"] .education-button {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: var(--darker);
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+html[data-theme="light"] .project-button:hover,
+html[data-theme="light"] .certificate-button:hover,
+html[data-theme="light"] .education-button:hover {
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+}
+
+/* Light theme: skills section */
+
+/* Light theme skill box gradient */
+html[data-theme="light"] .skill-item {
+    background: linear-gradient(to right, rgba(230, 240, 255, 0.6), rgba(255, 255, 255, 0.6));
+    border: 2px solid rgba(0, 123, 255, 0.3);
+    box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.07);
+}
+/* Light theme skill box hover */
+html[data-theme="light"] .skill-item:hover {
+    box-shadow: 0 0 16px 3px rgba(0, 123, 255, 0.22);
+    border-color: var(--primary);
+}
+html[data-theme="light"] .skill-item h3 {
+    color: var(--primary);
+}
+
+/* Light theme: education timeline */
+
+html[data-theme="light"] .timeline::before {
+    background: linear-gradient(180deg, var(--primary), var(--accent));
+}
+/* Light theme education card gradient */
+html[data-theme="light"] .timeline-content {
+    background: linear-gradient(to right, rgba(230, 240, 255, 0.6), rgba(255, 255, 255, 0.6));
+    border: 2px solid rgba(0, 123, 255, 0.3);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+/* Light theme education card hover */
+html[data-theme="light"] .timeline-content:hover {
+    border-color: var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.2);
+}
+html[data-theme="light"] .timeline-dot {
+    background: var(--primary);
+    border-color: var(--darker);
+}
+html[data-theme="light"] .timeline-content h3 {
+    color: var(--primary);
+}
+html[data-theme="light"] .education-logo {
+    border-color: var(--primary);
+}
+
+/* Light theme: certifications */
+
+html[data-theme="light"] .certificate-item p::before {
+    color: var(--primary);
+}
+
+/* Light theme: achievements */
+
+/* Light theme achievement card gradient */
+html[data-theme="light"] .achievement-card {
+    background: linear-gradient(to right, rgba(230, 240, 255, 0.6), rgba(255, 255, 255, 0.6));
+    border: 2px solid rgba(0, 123, 255, 0.2);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+/* Light theme achievement card hover */
+html[data-theme="light"] .achievement-card:hover {
+    border-color: var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.2);
+}
+html[data-theme="light"] .achievement-card h3 {
+    color: var(--primary);
+}
+
+/* Light theme: contact section */
+
+html[data-theme="light"] .contact-actions p.contact-subtitle {
+    color: var(--text);
+}
+html[data-theme="light"] .contact-actions p.card-description {
+    color: var(--text);
+    opacity: 0.9;
+}
+html[data-theme="light"] .contact-divider::before,
+html[data-theme="light"] .contact-divider::after {
+    border-bottom-color: rgba(0, 123, 255, 0.3);
+}
+html[data-theme="light"] .contact-divider span {
+    color: var(--primary);
+}
+/* Light theme social link button */
+html[data-theme="light"] .social-link {
+    background: linear-gradient(to right, rgba(230, 240, 255, 0.6), rgba(255, 255, 255, 0.6));
+    border: 2px solid rgba(0, 123, 255, 0.2);
+    color: var(--text);
+    box-shadow: 0 0 12px 2px rgba(0, 0, 0, 0.08);
+}
+/* Light theme social link hover */
+html[data-theme="light"] .social-link:hover {
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(233, 236, 239, 0.8));
+    border-color: var(--primary);
+    box-shadow: 0 5px 20px rgba(0, 123, 255, 0.2);
+}
+
+/* Light theme: footer */
+
+html[data-theme="light"] footer {
+    background: rgba(255, 255, 255, 0.95);
+    border-top: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+
+/* =======================================================
+   15. RESPONSIVE STYLES — MOBILE (max-width: 768px)
+======================================================= */
+
+/* Styles applied when screen width is 768px or less */
+@media (max-width: 768px) {
+
+    nav {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Lighter background animation on mobile for better performance */
+    .geometric-shape {
+        max-width: 70px !important;
+        max-height: 70px !important;
+        opacity: 0.22 !important;
+    }
+    .code-symbol {
+        font-size: 0.7rem;
+        opacity: 0.15 !important;
+    }
+
+    /* Show hamburger button on mobile */
+    .menu-toggle {
+        display: flex;
+        right: 20px !important;
+    }
+
+    /* Mobile navbar layout adjustments */
+    .theme-switch-wrapper {
+        order: 2;
+        margin-right: 0.2rem;
+        margin-left: auto;
+    }
+    .theme-switch {
+        width: 53px;
+        height: 28px;
+    }
+    .slider:before {
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 5.8px;
+    }
+    input:checked + .slider:before {
+        transform: translateX(26px);
+    }
+    .slider .sun-icon { left: 6px; }
+    .slider .moon-icon { right: 6px; }
+
+    /* Full-screen slide-in menu panel for mobile */
+    nav ul {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 270px;
+        max-width: 88vw;
+        height: 100vh;
+        height: 100dvh;
+        background: rgba(10, 14, 39, 0.98);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 0;
+        margin: 0;
+        box-shadow: -5px 0 30px rgba(0, 212, 255, 0.35);
+        border-left: 2px solid rgba(0, 212, 255, 0.35);
+        transition: right 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        /* Higher than nav (1000) so panel covers full screen top to bottom */
+        z-index: 1001;
+        will-change: right;
+        /* Desktop scrollable mask reset karo mobile mein */
+        -webkit-mask-image: none;
+        mask-image: none;
+        /* Desktop flex reset */
+        flex: none;
+        min-width: unset;
+        justify-content: flex-start;
+    }
+
+    nav ul.active {
+        right: 0;
+    }
+
+    /* Mobile menu header: photo, name, typing subtitle */
+    .mobile-menu-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex-shrink: 0;
+        /* Compact padding - adapts with min() */
+        padding: min(2.5rem, 8svh) 1rem min(1.5rem, 4svh);
+        border-bottom: 2px solid rgba(0, 212, 255, 0.4);
+        background: rgba(10, 14, 39, 0.98);
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.25);
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Profile photo in mobile menu header */
+    .mobile-menu-photo {
+        /* Adapts to screen height: smaller on short phones */
+        width: clamp(54px, 10svh, 80px);
+        height: clamp(54px, 10svh, 80px);
+        border-radius: 50%;
+        border: 3px solid var(--primary);
+        box-shadow: 0 0 18px rgba(0, 212, 255, 0.6);
+        background-image: url('Images/Aatif\ -\ CEO.jpg');
+        background-size: cover;
+        background-position: center;
+        margin-bottom: clamp(0.5rem, 2svh, 1rem);
+        animation: float 3s ease-in-out infinite;
+        flex-shrink: 0;
+    }
+
+    .mobile-menu-name {
+        font-size: clamp(0.8rem, 2svh, 1rem);
+        font-weight: bold;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 1.5px;
+        margin-bottom: 0.25rem;
+        text-align: center;
+    }
+
+    .mobile-menu-subtitle {
+        font-size: clamp(0.6rem, 1.5svh, 0.7rem);
+        color: var(--primary);
+        opacity: 0.9;
+        letter-spacing: 0.5px;
+        text-align: center;
+        min-height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .mobile-typing-text {
+        padding-right: 3px;
+        position: relative;
+    }
+
+    /* Nav list item spacing in mobile menu */
+    nav ul li:not(.mobile-menu-header) {
+        width: 100%;
+        /* Compact vertical margin - adapts to screen */
+        padding: 0 0.75rem;
+        margin: clamp(0.15rem, 0.6svh, 0.3rem) 0;
+        flex-shrink: 0;
+    }
+
+    nav ul li:first-of-type:not(.mobile-menu-header) {
+        margin-top: clamp(0.3rem, 1svh, 0.5rem);
+    }
+
+    nav ul li:last-child {
+        margin-bottom: clamp(0.5rem, 2svh, 1.2rem);
+    }
+
+    /* Individual link button inside mobile menu */
+    nav a {
+        width: 100%;
+        /* Compact padding that shrinks on small screens */
+        padding: clamp(0.45rem, 1.5svh, 0.75rem) 1rem;
+        font-size: clamp(0.75rem, 2svh, 0.88rem);
+        text-align: left;
+        border-radius: 10px;
+        display: block;
+        border: 2px solid rgba(0, 212, 255, 0.3);
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(26, 31, 58, 0.5));
+        position: relative;
+        overflow: hidden;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+        min-width: unset;
+        white-space: nowrap;
+        /* Remove translateY hover that causes layout shift on mobile */
+        transform: none;
+        transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+    }
+
+    /* Left accent bar on mobile nav links */
+    nav a::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 0;
+        background: linear-gradient(180deg, var(--primary), var(--accent));
+        border-radius: 0 4px 4px 0;
+        transition: height 0.25s ease;
+    }
+
+    nav a:hover::before,
+    nav a:active::before {
+        height: 65%;
+    }
+
+    nav a:hover,
+    nav a:active {
+        background: linear-gradient(135deg, rgba(0, 212, 255, 0.18), rgba(26, 31, 58, 0.8));
+        transform: translateX(4px);
+        border-color: var(--primary);
+    }
+
+    /* Mobile adjustments for hero and layout elements */
+    .hero h1           { font-size: 2.5rem; }
+    .greeting          { font-size: 1.8rem; }
+    .typing-animation  { font-size: 1.3rem; }
+    .hero h2           { font-size: 1.2rem; }
+    .section-box       { padding: 2rem 1rem; }
+    .profile-photo     { width: 150px; height: 150px; font-size: 3rem; }
+
+    /* Mobile education timeline — stack vertically */
+    .timeline::before { left: 0; }
+    .timeline-item    { flex-direction: column; }
+    .timeline-content {
+        width: 100%;
+        margin: 0 !important;
+        text-align: left !important;
+        padding: 1.5rem !important;
+        gap: 1rem;
+    }
+    .timeline-dot    { left: 0; transform: translateX(-50%); }
+    .education-logo  { width: 60px; height: 60px; }
+
+    /* Mobile project details list — stack label above value */
+    .card ul.project-details-list li {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .card ul.project-details-list li strong {
+        min-width: unset;
+        margin-bottom: 0.25rem;
+        top: 0;
+    }
+
+    /* Light theme overrides for mobile menu */
+    html[data-theme="light"] nav ul {
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: -5px 0 30px rgba(0, 0, 0, 0.18);
+        border-left: 2px solid rgba(0, 0, 0, 0.1);
+    }
+    html[data-theme="light"] .mobile-menu-header {
+        border-bottom-color: rgba(0, 0, 0, 0.1);
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    html[data-theme="light"] .mobile-menu-photo {
+        border-color: var(--primary);
+        box-shadow: 0 0 20px rgba(0, 123, 255, 0.6);
+    }
+    html[data-theme="light"] .mobile-menu-name {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    html[data-theme="light"] .mobile-menu-subtitle {
+        color: var(--primary);
+    }
+    html[data-theme="light"] nav ul a {
+        border-color: rgba(0, 123, 255, 0.3);
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.08), rgba(244, 247, 250, 0.5));
+    }
+    html[data-theme="light"] nav ul a::before {
+        background: linear-gradient(180deg, var(--primary), var(--accent));
+    }
+    html[data-theme="light"] nav ul a:hover,
+    html[data-theme="light"] nav ul a:active {
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.15), rgba(233, 236, 239, 0.8));
+        border-color: var(--primary);
+    }
+}
+
+/* Extra small phones (≤375px): compact nav adjustments */
+@media (max-width: 375px) {
+    nav ul {
+        width: 92vw;
+    }
+    nav a {
+        font-size: 0.72rem;
+        padding: 0.4rem 0.85rem;
+    }
+    .mobile-menu-photo {
+        width: 50px;
+        height: 50px;
+    }
+    .mobile-menu-name {
+        font-size: 0.78rem;
+        letter-spacing: 1px;
+    }
+}
+
+/* Short landscape screens (height < 600px): compact menu header */
+@media (max-height: 600px) and (max-width: 900px) {
+    .mobile-menu-photo {
+        width: 44px !important;
+        height: 44px !important;
+        margin-bottom: 0.3rem;
+        border-width: 2px;
+        animation: none;
+    }
+    .mobile-menu-header {
+        padding: 1rem 1rem 0.75rem !important;
+    }
+    .mobile-menu-name {
+        font-size: 0.75rem;
+        margin-bottom: 0.1rem;
+        letter-spacing: 1px;
+    }
+    .mobile-menu-subtitle {
+        font-size: 0.58rem;
+        min-height: 14px;
+    }
+    nav ul li:not(.mobile-menu-header) {
+        margin: 0.1rem 0;
+        padding: 0 0.6rem;
+    }
+    nav a {
+        padding: 0.38rem 0.85rem !important;
+        font-size: 0.72rem !important;
+        border-radius: 8px;
+    }
+}
+
+
+/* Desktop navbar layout fixes (min-width: 769px) */
+
+/* Styles for desktop screens (769px and above) */
+@media (min-width: 769px) {
+    /* Theme switch flex order on desktop */
+    .theme-switch-wrapper {
+        order: 2;
+        flex-shrink: 0;
+        flex-grow: 0;
+        margin-left: 0.75rem;
+        margin-right: 0.25rem;
+    }
+
+    /* Nav links scrollable container on desktop */
+    nav ul {
+        order: 3;
+        flex: 1 1 0;
+        min-width: 0;
+        justify-content: flex-end;
+        /* Mask removed — it was clipping the border */
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+}
+
+/* Text justification for About and Achievements sections */
+
+/* Justify text in the About section */
+#about .section-box p {
+    text-align: justify;
+}
+
+/* Justify text in the Achievements section */
+#achievements .section-box p,
+#achievements .section-box ul li {
+    text-align: justify;
+}
+
+/* Achievements section: badge sizes and image overrides */
+
+/* Large badge image */
+.big-badge {
+    width: 180px !important;
+    height: auto !important;
+    border: none !important;
+    display: block;
+    margin: 0 auto;
+}
+
+/* No border on achievement images */
+#achievements .project-image {
+    border: none !important;
+}
+
+/* Small badge images inside achievement cards */
+#achievements .card .project-image {
+    width: 150px !important;
+    height: auto !important;
+    border: none !important;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Achievement card heading size */
+#achievements .card h3 {
+    font-size: 1.2rem !important;
+    margin-top: 1.5rem;
+}
+
+/* Compact buttons in achievements section */
+#achievements .project-button {
+    padding: 0.45rem 1rem;
+    font-size: 0.8rem;
+    border-radius: 18px;
+}
+
+/* Justified text in achievements section */
+#achievements .section-box p,
+#achievements .section-box ul li {
+    text-align: justify;
+}
+
+/* =======================================================
+   GLASS SHINE SWEEP EFFECT
+   Applied to cards, skill boxes, timeline, social links, etc.
+   Desktop and mobile variants use different widths and speeds.
+======================================================= */
+
+/* These elements need position:relative and overflow:hidden for the shine pseudo-element */
+.card,
+.skill-item,
+.timeline-content,
+.achievement-card,
+.social-link,
+.resume-highlights,
+.cert-card,
+.internship-card,
+.about-shine {
+    position: relative;
+    overflow: hidden; /* Clips the shine pseudo-element to the box boundary */
+}
+
+/* Desktop shine: diagonal light sweep on hover */
+.card::before,
+.skill-item::before,
+.timeline-content::before,
+.achievement-card::before,
+.resume-highlights::before,
+.social-link::before,
+.internship-preview-card::before,
+.cert-card::before,
+.internship-card::before,
+.about-shine::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -160%;
+    width: 55%;
+    height: 100%;
+    background: linear-gradient(
+        125deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.25) 45%,
+        rgba(255, 255, 255, 0.12) 65%,
+        transparent 100%
+    );
+    transform: skewX(-22deg);
+    filter: blur(3px);
+    transition: left 0.65s ease, transform 0.45s ease;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.card:hover::before,
+.skill-item:hover::before,
+.timeline-content:hover::before,
+.achievement-card:hover::before,
+.resume-highlights:hover::before,
+.social-link:hover::before,
+.internship-preview-card:hover::before,
+.cert-card:hover::before,
+.internship-card:hover::before,
+.about-shine:hover::before {
+    left: 180%;
+}
+
+/* Desktop light theme shine: brighter sweep */
+html[data-theme="light"] .card::before,
+html[data-theme="light"] .skill-item::before,
+html[data-theme="light"] .timeline-content::before,
+html[data-theme="light"] .achievement-card::before,
+html[data-theme="light"] .resume-highlights::before,
+html[data-theme="light"] .social-link::before,
+html[data-theme="light"] .internship-preview-card::before,
+html[data-theme="light"] .cert-card::before,
+html[data-theme="light"] .internship-card::before,
+html[data-theme="light"] .about-shine::before {
+    background: linear-gradient(
+        125deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.9) 45%,
+        rgba(255, 255, 255, 0.65) 65%,
+        transparent 100%
+    );
+    filter: blur(2px);
+}
+
+/* Mobile shine: subtler, slightly faster sweep */
+
+@media (max-width: 768px) {
+
+    .card::before,
+    .skill-item::before,
+    .timeline-content::before,
+    .achievement-card::before,
+    .resume-highlights::before,
+    .social-link::before,
+    .internship-preview-card::before,
+    .cert-card::before,
+    .internship-card::before,
+    .about-shine::before {
+
+        left: -200%;            /* Mobile ke liye zyada left se start */
+        width: 85%;             /* Mobile shine wider but soft */
+        height: 100%;
+
+        background: linear-gradient(
+            120deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.28) 45%,
+            rgba(255, 255, 255, 0.16) 65%,
+            transparent 100%
+        );
+
+        filter: blur(2px);
+        transition: left 0.55s ease; /* Mobile me rapid shine */
+    }
+
+    .card:hover::before,
+    .skill-item:hover::before,
+    .timeline-content:hover::before,
+    .achievement-card:hover::before,
+    .resume-highlights:hover::before,
+    .social-link:hover::before,
+    .internship-preview-card:hover::before,
+    .cert-card:hover::before,
+    .internship-card:hover::before,
+    .about-shine:hover::before {
+        left: 160%; 
+    }
+
+    /* Mobile light theme: full-white shine */
+    html[data-theme="light"] .card::before,
+    html[data-theme="light"] .skill-item::before,
+    html[data-theme="light"] .timeline-content::before,
+    html[data-theme="light"] .achievement-card::before,
+    html[data-theme="light"] .resume-highlights::before,
+    html[data-theme="light"] .social-link::before,
+    html[data-theme="light"] .internship-preview-card::before,
+    html[data-theme="light"] .cert-card::before,
+    html[data-theme="light"] .internship-card::before,
+    html[data-theme="light"] .about-shine::before {
+        background: linear-gradient(
+            120deg,
+            transparent 0%,
+            rgba(255, 255, 255, 1) 40%,
+            rgba(255, 255, 255, 0.75) 60%,
+            transparent 100%
+        );
+        filter: blur(1.5px);
+    }
+}
+
+/* =======================================================
+   IMAGE HOVER EFFECT
+   Lift + glow on hover, no brightness change. Excludes achievement images.
+======================================================= */
+
+/* Default border and hover transition for images (excluding achievements) */
+.card img:not(#achievements img),
+.section-box img:not(#achievements img),
+.skill-item img:not(#achievements img),
+.timeline-content img:not(#achievements img),
+.project-image:not(#achievements .project-image),
+.certificate-item img:not(#achievements img),
+.education-logo:not(#achievements .education-logo) {
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    border-radius: 12px;
+    transition: transform 0.35s ease,
+                box-shadow 0.35s ease,
+                border-color 0.35s ease;
+    will-change: transform, border-color;
+}
+
+/* Image hover: lift, glow, darker border — no brightness filter */
+.card img:not(#achievements img):hover,
+.section-box img:not(#achievements img):hover,
+.skill-item img:not(#achievements img):hover,
+.timeline-content img:not(#achievements img):hover,
+.project-image:not(#achievements .project-image):hover,
+.certificate-item img:not(#achievements img):hover,
+.education-logo:not(#achievements .education-logo):hover {
+
+    /* Lift */
+    transform: translateY(-6px) scale(1.05);
+
+    /* Keep picture color SAME: no filter */
+    filter: none;
+
+    /* Soft glow */
+    box-shadow: 0 12px 28px rgba(0, 212, 255, 0.25);
+
+    /* Darker border */
+    border-color: var(--primary);
+}
+
+/* Light theme image border */
+html[data-theme="light"]
+.card img:not(#achievements img),
+html[data-theme="light"]
+.section-box img:not(#achievements img),
+html[data-theme="light"]
+.skill-item img:not(#achievements img),
+html[data-theme="light"]
+.timeline-content img:not(#achievements img),
+html[data-theme="light"]
+.project-image:not(#achievements .project-image),
+html[data-theme="light"]
+.certificate-item img:not(#achievements img),
+html[data-theme="light"]
+.education-logo:not(#achievements .education-logo) {
+    border-color: rgba(0, 123, 255, 0.3);
+}
+
+/* Light theme image hover */
+html[data-theme="light"] .card img:not(#achievements img):hover,
+html[data-theme="light"] .section-box img:not(#achievements img):hover,
+html[data-theme="light"] .skill-item img:not(#achievements img):hover,
+html[data-theme="light"] .timeline-content img:not(#achievements img):hover,
+html[data-theme="light"] .project-image:not(#achievements .project-image):hover,
+html[data-theme="light"] .certificate-item img:not(#achievements img):hover,
+html[data-theme="light"] .education-logo:not(#achievements .education-logo):hover {
+    filter: none;
+    border-color: var(--primary);
+    box-shadow: 0 12px 35px rgba(0, 123, 255, 0.25);
+}
+
+/* Mobile image hover: smaller lift */
+@media (max-width: 768px) {
+    .card img:not(#achievements img):hover,
+    .section-box img:not(#achievements img):hover,
+    .skill-item img:not(#achievements img):hover,
+    .timeline-content img:not(#achievements img):hover,
+    .project-image:not(#achievements .project-image):hover,
+    .certificate-item img:not(#achievements img):hover,
+    .education-logo:not(#achievements .education-logo):hover {
+        transform: translateY(-4px) scale(1.04);
+    }
+}
+
+
+/* Education logos: forced circular shape with consistent sizing */
+
+#education .education-logo,
+.timeline-content img.education-logo,
+.education-logo {
+    width: 100px !important;
+    height: 100px !important;
+    object-fit: cover !important;
+    border-radius: 50% !important;
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    transition: border-color 0.3s ease,
+                transform 0.35s ease,
+                box-shadow 0.35s ease;
+}
+
+/* Education logo hover: no brightness change */
+.education-logo:hover {
+    transform: translateY(-6px) scale(1.05);
+    border-color: var(--primary);
+    box-shadow: 0 10px 25px rgba(0, 212, 255, 0.25);
+}
+
+html[data-theme="light"] .education-logo:hover {
+    border-color: var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3);
+}
+
+
+/* =======================================================
+   PROJECT SUB-PAGES — 2-COLUMN GRID OVERRIDES
+   Applies to: #excel, #powerbi, #powerpoint sections
+======================================================= */
+
+/* 2-column grid for project sub-pages */
+#excel .cards-grid,
+#powerbi .cards-grid,
+#powerpoint .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 2.5rem;
+    margin-top: 2rem;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Larger card padding on project sub-pages */
+#excel .card,
+#powerbi .card,
+#powerpoint .card {
+    padding: 2.5rem; /* Zyada padding */
+    min-height: 650px; /* Minimum height */
+}
+
+/* Larger card title on project sub-pages */
+#excel .card h3,
+#powerbi .card h3,
+#powerpoint .card h3 {
+    font-size: 1.6rem; /* Bada title */
+    margin-bottom: 1.2rem;
+}
+
+/* Fixed-height project images on sub-pages */
+#excel .project-image,
+#powerbi .project-image,
+#powerpoint .project-image {
+    height: 235px; /* Fixed height */
+    object-fit: cover;
+}
+
+/* Larger description text on project sub-pages */
+#excel .project-description p,
+#powerbi .project-description p,
+#powerpoint .project-description p {
+    font-size: 1rem; /* Bada text */
+    line-height: 1.7;
+}
+
+/* Larger description heading on project sub-pages */
+#excel .project-description h4,
+#powerbi .project-description h4,
+#powerpoint .project-description h4 {
+    font-size: 1.15rem;
+    margin-bottom: 0.8rem;
+}
+
+/* Mobile: single column on project sub-pages */
+@media (max-width: 768px) {
+    #excel .cards-grid,
+    #powerbi .cards-grid,
+    #powerpoint .cards-grid {
+        grid-template-columns: 1fr !important; /* Mobile pe 1 column */
+        gap: 1.5rem;
+    }
+    
+    #excel .card,
+    #powerbi .card,
+    #powerpoint .card {
+        min-height: auto; /* Mobile pe auto height */
+        padding: 2rem;
+    }
+    
+    #excel .project-image,
+    #powerbi .project-image,
+    #powerpoint .project-image {
+        height: auto; /* Mobile pe auto height */
+    }
+}
+
+/* =======================================================
+   RESUME SECTION
+======================================================= */
+
+.resume-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 3rem;
+    margin-top: 2rem;
+    align-items: start;
+}
+
+.resume-preview {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+.resume-preview:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(0, 212, 255, 0.5);
+    border: 2px solid var(--primary);
+    
+}
+
+.resume-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+    
+}
+
+
+.resume-content h3 {
+    color: var(--primary);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.resume-content p {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+    text-align: justify;
+}
+
+.resume-highlights {
+    position: relative;
+    background: linear-gradient(
+        135deg,
+        rgba(0, 212, 255, 0.08),
+        rgba(26, 31, 58, 0.5)
+    );
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 2px solid rgba(0, 212, 255, 0.3);
+    margin-bottom: 2rem;
+    overflow: hidden;
+
+    transition: 
+        transform 0.35s ease,
+        box-shadow 0.35s ease;
+}
+
+.resume-highlights:hover {
+    transform: translateY(-6px);
+    border-color: var(--primary);
+    box-shadow: 0 18px 50px rgba(0, 212, 255, 0.45);
+}
+
+
+
+.resume-highlights h4 {
+    color: var(--primary);
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+}
+
+.resume-highlights ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.resume-highlights ul li {
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    color: var(--text);
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.resume-highlights ul li:last-child {
+    border-bottom: none;
+}
+
+.resume-buttons {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.resume-download-btn,
+.resume-view-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.875rem;
+    font-weight: bold;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);
+}
+
+.resume-download-btn {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: var(--darker);
+}
+
+.resume-view-btn {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(26, 31, 58, 0.8));
+    color: var(--text);
+    border: 2px solid var(--primary);
+}
+
+.resume-download-btn:hover,
+.resume-view-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 212, 255, 0.5);
+}
+
+.resume-download-btn:hover {
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+}
+
+.resume-view-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(26, 31, 58, 0.9));
+}
+
+/* Light theme resume section */
+html[data-theme="light"] .resume-preview {
+    border-color: rgba(0, 123, 255, 0.4);
+    box-shadow: 0 10px 40px rgba(0, 123, 255, 0.2);
+}
+
+html[data-theme="light"] .resume-preview:hover {
+    box-shadow: 0 20px 60px rgba(0, 123, 255, 0.3);
+    border-color: var(--primary);
+}
+
+html[data-theme="light"] .resume-content h3 {
+    color: var(--primary);
+}
+
+html[data-theme="light"] .resume-highlights {
+    background: linear-gradient(to right, rgba(230, 240, 255, 0.6), rgba(255, 255, 255, 0.6));
+    border-color: rgba(0, 123, 255, 0.132);
+
+}
+
+/* Light theme – Resume Highlights hover shadow color */
+html[data-theme="light"] .resume-highlights:hover {
+    box-shadow: 0 18px 45px rgba(0, 123, 255, 0.227);
+    border-color: var(--primary);
+}
+
+
+html[data-theme="light"] .resume-highlights h4 {
+    color: var(--primary);
+}
+
+html[data-theme="light"] .resume-highlights ul li {
+    border-bottom-color: rgba(0, 123, 255, 0.2);
+}
+
+html[data-theme="light"] .resume-view-btn {
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(244, 247, 250, 0.8));
+    border-color: var(--primary);
+    color: var(--text);
+}
+
+html[data-theme="light"] .resume-view-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.2), rgba(233, 236, 239, 0.9));
+}
+
+/* Mobile resume layout */
+@media (max-width: 768px) {
+    .resume-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .resume-content h3 {
+        font-size: 1.6rem;
+    }
+    
+    .resume-buttons {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .resume-download-btn,
+    .resume-view-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* About section: portrait image beside text */
+.about-content-wrapper {
+    display: flex;
+    gap: 2.5rem;
+    align-items: flex-start;
+    margin-top: 1rem;
+}
+
+.about-image-box {
+    flex-shrink: 0;
+    width: 175px; /* SIZE CHOTI KAR DI */
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.about-portrait-image {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    display: block;
+    border-radius: 12px;
+}
+
+.about-image-box:hover {
+    transform: translateY(-6px) scale(1.05);
+    box-shadow: 0 12px 28px rgba(0, 212, 255, 0.25);
+    border-color: var(--primary);
+    border-width: 2px;
+}
+
+.about-image-box::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -160%;
+    width: 55%;
+    height: 100%;
+    background: linear-gradient(125deg, transparent 0%, rgba(255, 255, 255, 0.25) 45%, rgba(255, 255, 255, 0.12) 65%, transparent 100%);
+    transform: skewX(-22deg);
+    filter: blur(3px);
+    transition: left 0.65s ease;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.about-image-box:hover::before {
+    left: 180%;
+}
+
+.about-text-content {
+    flex: 1;
+}
+
+/* Tablet: slightly smaller about image */
+@media (max-width: 1024px) {
+    .about-image-box {
+        width: 200px; /* Slightly smaller on tablet */
+    }
+    .about-content-wrapper {
+        gap: 2rem;
+    }
+}
+
+/* Mobile: stack about image above text */
+@media (max-width: 768px) {
+    .about-content-wrapper {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    .about-image-box {
+        width: 100%;
+        max-width: 220px; /* Mobile par bhi same size */
+        margin: 0 auto;
+    }
+}
+
+/* Small mobile: smaller about image */
+@media (max-width: 480px) {
+    .about-image-box {
+        max-width: 180px; /* Even smaller on small mobile */
+    }
+}
+
+html[data-theme="light"] .about-image-box {
+    border-color: rgba(0, 123, 255, 0.3);
+}
+
+html[data-theme="light"] .about-image-box:hover {
+    border-color: var(--primary);
+    box-shadow: 0 12px 35px rgba(0, 123, 255, 0.25);
+}
+/* =======================================================
+   MOBILE MENU — CLOSE BUTTON (injected by JavaScript)
+======================================================= */
+
+/* Close button positioned inside mobile menu header */
+.mobile-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 212, 255, 0.12);
+  border: 2px solid rgba(0, 212, 255, 0.4);
+  border-radius: 50%;
+  color: var(--primary);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  z-index: 1010;
+  flex-shrink: 0;
+  outline: none;
+}
+
+.mobile-close-btn:hover,
+.mobile-close-btn:active {
+  background: rgba(0, 212, 255, 0.25);
+  transform: rotate(90deg);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+}
+
+html[data-theme="light"] .mobile-close-btn {
+  background: rgba(0, 123, 255, 0.1);
+  border-color: rgba(0, 123, 255, 0.4);
+  color: var(--primary);
+}
+html[data-theme="light"] .mobile-close-btn:hover {
+  background: rgba(0, 123, 255, 0.2);
+  box-shadow: 0 0 12px rgba(0, 123, 255, 0.4);
+}
+
+/* Note: mobile-menu-header::before is intentionally absent. JS injects .mobile-close-btn instead. */
+
+/* =======================================================
+   INTERNSHIP SECTION — PREVIEW CARDS (Home Page)
+======================================================= */
+
+/* Auto-fit grid for internship preview cards */
+.internship-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.8rem;
+  margin-top: 1rem;
+}
+
+/* Individual internship preview card */
+.internship-preview-card {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(26, 31, 58, 0.6));
+  border: 2px solid rgba(0, 212, 255, 0.25);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  will-change: transform;
+  position: relative;
+  overflow: hidden;
+}
+
+.internship-preview-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--primary);
+  box-shadow: 0 14px 40px rgba(0, 212, 255, 0.3);
+}
+
+/* Icon circle inside preview card */
+.internship-preview-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  color: var(--primary);
+  background: rgba(0, 212, 255, 0.12);
+  border: 2px solid rgba(0, 212, 255, 0.3);
+  border-radius: 50%;
+  overflow: hidden;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.internship-preview-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.internship-preview-card:hover .internship-preview-icon {
+  background: rgba(0, 212, 255, 0.2);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+}
+
+.internship-preview-card h3 {
+  color: var(--primary);
+  font-size: 1.15rem;
+  margin-bottom: 0.75rem;
+}
+
+.internship-preview-card p {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  opacity: 0.82;
+}
+
+/* Light theme internship preview */
+html[data-theme="light"] .internship-preview-card {
+  background: linear-gradient(to right, rgba(230, 240, 255, 0.6), rgba(255, 255, 255, 0.6));
+  border-color: rgba(0, 123, 255, 0.25);
+}
+html[data-theme="light"] .internship-preview-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 14px 40px rgba(0, 123, 255, 0.2);
+}
+html[data-theme="light"] .internship-preview-icon {
+  background: rgba(0, 123, 255, 0.1);
+  border-color: rgba(0, 123, 255, 0.3);
+}
+html[data-theme="light"] .internship-preview-card:hover .internship-preview-icon {
+  background: rgba(0, 123, 255, 0.18);
+  box-shadow: 0 0 18px rgba(0, 123, 255, 0.3);
+}
+
+/* Mobile: single column for internship previews */
+@media (max-width: 600px) {
+  .internship-preview-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+}
+
+/* =======================================================
+   INTERNSHIP PAGE — DETAIL CARDS
+======================================================= */
+
+.internship-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;  
+}
+
+/* Square logo image inside internship cards */
+.internship-card .project-image {
+  width: 40%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px 12px 0 0;
+}
+
+.internship-company {
+  color: var(--primary);
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin: 0.5rem 0 0.6rem;
+  opacity: 0.9;
+}
+.internship-company i { margin-right: 0.35rem; }
+
+.internship-desc {
+  font-size: 0.93rem;
+  line-height: 1.6;
+  opacity: 0.85;
+  flex: 1;
+  text-align: justify;
+}
+
+/* Internship card action buttons */
+
+
+.internship-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; /* Left & Right distribute */
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+
+.internship-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  font-size: 0.875rem;
+  font-weight: bold;
+  border-radius: 20px;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  will-change: transform;
+  width: 48%;
+  text-align: center;
+}
+
+.btn-certificate {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--darker);
+  box-shadow: 0 4px 10px rgba(0, 212, 255, 0.3);
+}
+.btn-certificate:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.5);
+  background: linear-gradient(135deg, var(--accent), var(--primary));
+}
+
+.btn-offer {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(26, 31, 58, 0.8));
+  color: var(--text);
+  border: 2px solid rgba(0, 212, 255, 0.5);
+  box-shadow: 0 4px 10px rgba(0, 212, 255, 0.2);
+}
+.btn-offer:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.25), rgba(26, 31, 58, 0.9));
+  border-color: var(--primary);
+}
+
+.btn-lor {
+  background: linear-gradient(135deg, rgba(0, 255, 170, 0.12), rgba(26, 31, 58, 0.8));
+  color: var(--accent);
+  border: 2px solid rgba(0, 255, 170, 0.4);
+  box-shadow: 0 4px 10px rgba(0, 255, 170, 0.15);
+}
+.btn-lor:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 255, 170, 0.35);
+  background: linear-gradient(135deg, rgba(0, 255, 170, 0.22), rgba(26, 31, 58, 0.9));
+  border-color: var(--accent);
+}
+
+.internship-btn[aria-disabled="true"] {
+  opacity: 0.42;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Light theme internship button styles */
+html[data-theme="light"] .btn-offer {
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(244, 247, 250, 0.8));
+  border-color: rgba(0, 123, 255, 0.4);
+  color: var(--text);
+}
+html[data-theme="light"] .btn-offer:hover {
+  background: linear-gradient(135deg, rgba(0, 123, 255, 0.2), rgba(233, 236, 239, 0.9));
+  border-color: var(--primary);
+}
+html[data-theme="light"] .btn-lor {
+  background: linear-gradient(135deg, rgba(0, 180, 120, 0.1), rgba(244, 247, 250, 0.8));
+  border-color: rgba(0, 180, 120, 0.4);
+  color: #00a86b;
+}
+html[data-theme="light"] .btn-lor:hover {
+  background: linear-gradient(135deg, rgba(0, 180, 120, 0.2), rgba(233, 236, 239, 0.9));
+  border-color: #00a86b;
+}
+
+/* Mobile (≤480px): full-width internship card layout */
+@media screen and (max-width: 480px) {
+  
+  /* Mobile: internship card reflows to edge-to-edge */
+  .internship-card {
+    padding: 0 0 1.5rem 0 !important; /* Side padding removed so image reaches the card edge */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  /* Mobile: internship logo centered */
+  .internship-card .project-image { 
+    width: 50% !important;   
+    max-width: 100% !important;
+    aspect-ratio: 1/1;     /* Mobile par wide look */
+    height: auto; 
+    object-fit: cover;
+    margin: 1rem 0; /* Image ke upar niche thoda gap */
+    padding: 0;
+    border-radius: 0;         /* Top edges sharp */
+  }
+
+  /* Mobile: restore side padding for text */
+  .internship-card h3, 
+  .internship-company, 
+  .internship-desc {
+    padding-left: 1.2rem;
+    padding-right: 1.2rem;
+    width: 100%;
+    text-align: justify-all; /* Mobile par justified text */
+  }
+
+  /* Mobile: full-width stacked buttons */
+  .internship-buttons {
+    display: flex !important;
+    flex-direction: column !important; /* Ek ke niche ek */
+    align-items: center !important;    /* Bilkul center mein */
+    width: 100% !important;
+    padding: 0 1.2rem;
+    gap: 10px;
+    margin-top: 15px;
+  }
+
+  .internship-btn { 
+    width: 90% !important;   /* Full width (Heavy feel) */
+    max-width: 280px; 
+    font-size: 0.9rem !important; 
+    padding: 12px !important; 
+    font-weight: 700 !important; /* Jyada weight (bold) */
+    justify-content: center !important;
+    margin: 0 auto;
+  }
+}
+
+
+/* Disable touch events on the background animation */
+.bg-animation {
+    touch-action: none;
+    pointer-events: none;
+}
+
+/* Async image decoding for faster page render */
+img {
+    image-rendering: auto;
+    decoding: async;
+}
+
+.project-image, .education-logo, .cert-card img {
+    will-change: auto;
+}
+
+/* Scroll reveal animation — triggered by IntersectionObserver in script.js */
+.reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.05s; }
+.reveal-delay-2 { transition-delay: 0.1s; }
+.reveal-delay-3 { transition-delay: 0.15s; }
+.reveal-delay-4 { transition-delay: 0.2s; }
+.reveal-delay-5 { transition-delay: 0.25s; }
+.reveal-delay-6 { transition-delay: 0.3s; }
+.reveal-delay-7 { transition-delay: 0.35s; }
+.reveal-delay-8 { transition-delay: 0.4s; }
+.reveal-delay-9 { transition-delay: 0.45s; }
+
+/* Honor prefers-reduced-motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
+/* =======================================================
+   PWA INSTALL BUTTON
+======================================================= */
+
+.pwa-install-btn {
+    display: none; /* JS will show it when prompt is available */
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.32rem 0.75rem;
+    font-size: 0.70rem;
+    font-weight: 600;
+    color: #050816;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    order: 2;
+    letter-spacing: 0.3px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+    box-shadow: 0 0 12px rgba(0, 212, 255, 0.45);
+    animation: pwaGlow 2.5s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+    margin-top: 0.3rem;
+    margin-right: 0.4rem;
+}
+
+/* Animated shine sweep on the install button */
+.pwa-install-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.55s ease;
+    pointer-events: none;
+}
+.pwa-install-btn:hover::before {
+    left: 160%;
+}
+
+.pwa-install-btn:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 6px 22px rgba(0, 212, 255, 0.65);
+}
+
+.pwa-install-btn:active {
+    transform: scale(0.97);
+}
+
+.pwa-install-btn i {
+    font-size: 0.72rem;
+}
+
+/* Pulsing glow animation for the install button */
+@keyframes pwaGlow {
+    0%, 100% { box-shadow: 0 0 10px rgba(0, 212, 255, 0.45); }
+    50%       { box-shadow: 0 0 20px rgba(0, 212, 255, 0.8), 0 0 35px rgba(0, 212, 255, 0.3); }
+}
+
+/* JS adds this class to reveal the install button */
+.pwa-install-btn.pwa-visible {
+    display: flex !important;
+}
+
+/* Brief green flash after successful install */
+.pwa-install-btn.pwa-installed {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    box-shadow: 0 0 14px rgba(34, 197, 94, 0.6);
+    animation: none;
+    pointer-events: none;
+}
+
+/* Light theme install button */
+html[data-theme="light"] .pwa-install-btn {
+    color: #fff;
+    box-shadow: 0 0 12px rgba(0, 123, 255, 0.4);
+    animation: pwaGlowLight 2.5s ease-in-out infinite;
+}
+
+@keyframes pwaGlowLight {
+    0%, 100% { box-shadow: 0 0 10px rgba(0, 123, 255, 0.4); }
+    50%       { box-shadow: 0 0 20px rgba(0, 123, 255, 0.75), 0 0 35px rgba(0, 123, 255, 0.25); }
+}
+
+/* Mobile: smaller install button (icon only) */
+@media (max-width: 768px) {
+    .pwa-install-btn {
+        order: 2;
+        padding: 0.28rem 0.55rem;
+        font-size: 0.65rem;
+        margin-right: 0.25rem;
+    }
+    .pwa-btn-text {
+        display: none; /* Mobile par sirf icon dikhega */
+    }
+    .pwa-install-btn i {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .pwa-install-btn {
+        padding: 0.26rem 0.5rem;
+    }
+}
+
+/* =======================================================
+   ENHANCED ANIMATIONS — 144 FPS OPTIMIZED
+======================================================= */
+
+/* Scroll reveal: spring-style entrance from below */
+.reveal {
+    opacity: 0;
+    transform: translateY(36px) scale(0.96);
+    transition: opacity 0.85s cubic-bezier(0.22,1,0.36,1),
+                transform 0.85s cubic-bezier(0.22,1,0.36,1);
+    will-change: opacity, transform;
+}
+.reveal.revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+.reveal-delay-1  { transition-delay: 0.06s;  }
+.reveal-delay-2  { transition-delay: 0.12s;  }
+.reveal-delay-3  { transition-delay: 0.18s;  }
+.reveal-delay-4  { transition-delay: 0.24s;  }
+.reveal-delay-5  { transition-delay: 0.30s;  }
+.reveal-delay-6  { transition-delay: 0.36s;  }
+.reveal-delay-7  { transition-delay: 0.42s;  }
+.reveal-delay-8  { transition-delay: 0.48s;  }
+.reveal-delay-9  { transition-delay: 0.54s;  }
+
+/* Section title: smooth gradient color sweep animation */
+.section-title {
+    background: linear-gradient(90deg,#00d4ff 0%,#a855f7 30%,#00ffaa 60%,#00d4ff 100%);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleSweep 5s linear infinite;
+    cursor: default;
+}
+@keyframes titleSweep {
+    0%   { background-position: 0%   center; }
+    100% { background-position: 300% center; }
+}
+html[data-theme="light"] .section-title {
+    background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 30%, #00b4d8 60%, var(--primary) 100%);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: titleSweep 5s linear infinite;
+}
+
+/* Card hover: spring-eased lift with deep glow */
+.card {
+    position: relative; overflow: hidden;
+    transition: transform 0.55s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.5s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.45s cubic-bezier(0.22,1,0.36,1);
+    will-change: transform;
+}
+.card:hover {
+    box-shadow: 0 26px 54px rgba(0,0,0,0.48), 0 0 42px rgba(0,212,255,0.26), 0 0 0 1px rgba(0,212,255,0.4);
+    border-color: rgba(0,212,255,0.75) !important;
+}
+
+/* Cert card hover: lift, scale, glow */
+.cert-card {
+    transition: opacity 0.75s cubic-bezier(0.22,1,0.36,1),
+                transform 0.75s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.5s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.6s cubic-bezier(0.22,1,0.36,1) !important;
+    overflow: hidden; position: relative;
+}
+.cert-card:hover {
+    transform: translateY(-9px) scale(1.02) !important;
+    box-shadow: 0 22px 50px rgba(0,0,0,0.45), 0 0 38px rgba(0,212,255,0.3), 0 0 0 1px rgba(0,212,255,0.5) !important;
+    border-color: rgba(0,212,255,0.8) !important;
+}
+
+/* Internship card hover: lift, scale, glow */
+.internship-card {
+    transition: transform 0.55s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.5s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.45s cubic-bezier(0.22,1,0.36,1) !important;
+    position: relative; overflow: hidden;
+}
+.internship-card:hover {
+    transform: translateY(-9px) scale(1.01) !important;
+    box-shadow: 0 26px 54px rgba(0,0,0,0.4), 0 0 38px rgba(0,212,255,0.26) !important;
+    border-color: rgba(0,212,255,0.7) !important;
+}
+
+/* Section box: animated floating orb in corner + hover lift */
+.section-box { position: relative; overflow: hidden; }
+.section-box::after {
+    content: ''; position: absolute;
+    width: 260px; height: 260px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,212,255,0.05) 0%, transparent 70%);
+    top: -85px; right: -85px;
+    animation: orbFloat 8s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
+    pointer-events: none; z-index: 0;
+}
+.section-box > * { position: relative; z-index: 1; }
+@keyframes orbFloat {
+    0%,100% { transform: translate(0,0)      scale(1);    }
+    33%     { transform: translate(-18px,22px) scale(1.10); }
+    66%     { transform: translate(22px,-16px) scale(0.93); }
+}
+.section-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 32px 64px -10px rgba(0,212,255,0.35), 0 0 0 1px rgba(0,212,255,0.35);
+    border-color: rgba(0,212,255,0.65);
+    transition: transform 0.6s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.6s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* Project button hover: spring bounce lift */
+.project-button {
+    position: relative; overflow: hidden;
+    transition: transform 0.45s cubic-bezier(0.34,1.56,0.64,1),
+                box-shadow 0.4s cubic-bezier(0.22,1,0.36,1),
+                background 0.35s ease;
+    will-change: transform;
+}
+.project-button:hover {
+    transform: translateY(-4px) scale(1.07);
+    box-shadow: 0 14px 32px rgba(0,212,255,0.58);
+}
+
+/* Skill item hover: lift, glow, icon bounces with rotation */
+.skill-item {
+    transition: transform 0.5s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.5s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.4s cubic-bezier(0.22,1,0.36,1),
+                background 0.4s ease;
+    will-change: transform; position: relative; overflow: hidden;
+}
+.skill-item:hover {
+    transform: translateY(-8px) scale(1.04);
+    box-shadow: 0 18px 38px rgba(0,212,255,0.36), 0 0 0 1px rgba(0,212,255,0.5);
+    border-color: var(--primary);
+}
+.skill-item i, .skill-item .fa-solid, .skill-item .fa-brands {
+    display: inline-block;
+    transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), filter 0.4s ease;
+}
+.skill-item:hover i, .skill-item:hover .fa-solid, .skill-item:hover .fa-brands {
+    transform: scale(1.35) rotate(-6deg);
+    filter: drop-shadow(0 0 8px currentColor);
+}
+
+/* Profile photo: spinning conic-gradient orbit ring */
+.profile-photo::before {
+    content: ''; position: absolute; inset: -14px; border-radius: 50%;
+    background: conic-gradient(from 0deg, #00d4ff, #a855f7, #00ffaa, #ff6ecf, #00d4ff);
+    animation: orbitSpin 4s linear infinite;
+    z-index: -1;
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), white calc(100% - 2px));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), white calc(100% - 2px));
+}
+@keyframes orbitSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+/* Project image: smooth zoom on parent card hover */
+.project-image {
+    transition: transform 0.6s cubic-bezier(0.22,1,0.36,1),
+                filter 0.5s cubic-bezier(0.22,1,0.36,1);
+    will-change: transform;
+}
+.card:hover .project-image,
+.cert-card:hover img,
+.internship-card:hover .project-image {
+    transform: scale(1.05);
+    filter: brightness(1.1) saturate(1.15);
+}
+
+/* Timeline dot: pulsing ring animation */
+.timeline-dot {
+    animation: dotPulse 2.8s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
+}
+@keyframes dotPulse {
+    0%,100% { box-shadow: 0 0 0 0   rgba(0,212,255,0.6); transform: translateX(-50%) scale(1);    }
+    50%     { box-shadow: 0 0 0 14px rgba(0,212,255,0);   transform: translateX(-50%) scale(1.18); }
+}
+
+/* Timeline content: smooth scale + lift hover */
+.timeline-content {
+    transition: transform 0.55s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.5s cubic-bezier(0.22,1,0.36,1),
+                border-color 0.4s cubic-bezier(0.22,1,0.36,1);
+    will-change: transform; position: relative; overflow: hidden;
+}
+.timeline-content:hover {
+    transform: scale(1.035) translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: 0 18px 40px -6px rgba(0,212,255,0.40);
+}
+
+/* Hero H1: gradient shift + subtle letter-spacing breathe */
+.hero h1 {
+    animation: gradientShift 4s cubic-bezier(0.45,0.05,0.55,0.95) infinite,
+               breathe 6s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
+}
+@keyframes breathe {
+    0%,100% { letter-spacing: normal;  }
+    50%     { letter-spacing: 0.035em; }
+}
+
+/* Hero content children: staggered entrance animation */
+.hero-content > * {
+    animation: heroIn 1s cubic-bezier(0.22,1,0.36,1) both;
+}
+.hero-content>*:nth-child(1){animation-delay:0.08s}
+.hero-content>*:nth-child(2){animation-delay:0.18s}
+.hero-content>*:nth-child(3){animation-delay:0.28s}
+.hero-content>*:nth-child(4){animation-delay:0.38s}
+.hero-content>*:nth-child(5){animation-delay:0.48s}
+.hero-content>*:nth-child(6){animation-delay:0.58s}
+@keyframes heroIn {
+    from { opacity:0; transform:translateY(32px) scale(0.97); }
+    to   { opacity:1; transform:translateY(0)    scale(1);    }
+}
+
+/* Badge row hover: lift and glow */
+.badge-row {
+    transition: transform 0.5s cubic-bezier(0.22,1,0.36,1),
+                box-shadow 0.5s cubic-bezier(0.22,1,0.36,1) !important;
+}
+.badge-row:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow: 0 18px 40px rgba(0,212,255,0.32) !important;
+}
+
+/* Pulse dot animation for "ONGOING" internship badge */
+@keyframes pulse-dot {
+    0%,100% { opacity:1; transform:scale(1);   }
+    50%     { opacity:0.3; transform:scale(1.6); }
+}
+
+/* Mobile: reduced animation complexity for performance */
+@media (max-width: 768px) {
+    .section-box::after { width: 150px; height: 150px; }
+    .profile-photo::before { animation-duration: 6s; }
+    .timeline-dot { animation-duration: 3.5s; }
+    .reveal {
+        transition-duration: 0.65s;
+    }
+}
+
+/* Reduced motion: nearly instant transitions for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* =======================================================
+   PAGE-SPECIFIC STYLES (Moved from inline HTML styles)
+   These classes are used only on specific sub-pages.
+   Keeping them here avoids inline <style> blocks.
+======================================================= */
+
+/* --- AI page: 2-column card grid --- */
+#ai .cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+}
+@media (max-width: 768px) {
+    #ai .cards-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* --- Internships page: 2-column card grid --- */
+#internships-list .cards-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+}
+@media (max-width: 768px) {
+    #internships-list .cards-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* =======================================================
+   ACHIEVEMENTS PAGE — Google Profile Card
+======================================================= */
+
+.google-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    background: linear-gradient(135deg, rgba(26,31,58,0.7), rgba(51,60,100,0.5));
+    border: 2px solid rgba(0,212,255,0.4);
+    border-radius: 18px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 3rem;
+    box-shadow: 0 0 24px 4px rgba(0,212,255,0.18);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Shine sweep effect on profile card */
+.google-profile-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: -160%; width: 55%; height: 100%;
+    background: linear-gradient(125deg, transparent 0%, rgba(255,255,255,0.18) 45%, rgba(255,255,255,0.08) 65%, transparent 100%);
+    transform: skewX(-22deg);
+    filter: blur(3px);
+    transition: left 0.65s ease;
+    z-index: 2; pointer-events: none;
+}
+.google-profile-card:hover::before { left: 180%; }
+
+.google-profile-img {
+    width: 130px;
+    height: 130px;
+    border-radius: 15px;
+    border: 3px solid rgba(0,212,255,0.5);
+    object-fit: cover;
+    flex-shrink: 0;
+    position: relative; z-index: 1;
+}
+
+.google-profile-info { position: relative; z-index: 1; }
+.google-profile-info h3 {
+    font-size: 1.4rem;
+    color: var(--primary);
+    margin: 0 0 0.4rem 0;
+}
+.google-profile-info p {
+    opacity: 0.8;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0 0 1.2rem 0;
+}
+.google-profile-info .profile-meta {
+    font-size: 0.85rem;
+    opacity: 0.65;
+    margin-bottom: 1.2rem;
+}
+.google-profile-info .profile-meta i { color: var(--accent); margin-right: 0.4rem; }
+
+@media (max-width: 600px) {
+    .google-profile-card { flex-direction: column; text-align: center; padding: 1.5rem; }
+    .google-profile-img { width: 100px; height: 100px; }
+}
+
+html[data-theme="light"] .google-profile-card {
+    background: linear-gradient(to right, rgba(230,240,255,0.7), rgba(255,255,255,0.7));
+    border-color: rgba(0,123,255,0.35);
+    box-shadow: 0 0 18px 3px rgba(0,0,0,0.08);
+}
+
+/* =======================================================
+   ACHIEVEMENTS PAGE — Badge Row Layout
+======================================================= */
+
+.badge-list { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.badge-row {
+    display: flex;
+    align-items: center;
+    gap: 1.8rem;
+    background: linear-gradient(135deg, rgba(26,31,58,0.6), rgba(51,60,100,0.4));
+    border: 2px solid rgba(0,212,255,0.3);
+    border-radius: 15px;
+    padding: 1.4rem 1.8rem;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 14px 2px rgba(0,212,255,0.15);
+    position: relative;
+    overflow: hidden;
+}
+.badge-row:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 0 22px 4px rgba(0,212,255,0.35);
+    border-color: var(--primary);
+}
+
+/* Shine sweep on badge row */
+.badge-row::before {
+    content: "";
+    position: absolute;
+    top: 0; left: -160%; width: 55%; height: 100%;
+    background: linear-gradient(125deg, transparent 0%, rgba(255,255,255,0.22) 45%, rgba(255,255,255,0.1) 65%, transparent 100%);
+    transform: skewX(-22deg);
+    filter: blur(3px);
+    transition: left 0.65s ease;
+    z-index: 2; pointer-events: none;
+}
+.badge-row:hover::before { left: 180%; }
+
+/* Badge image box (square) */
+.badge-img-box {
+    flex-shrink: 0;
+    width: 110px;
+    height: 110px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; z-index: 1;
+}
+.badge-img-box img {
+    width: 110px; height: 110px;
+    object-fit: contain; display: block;
+    border: none !important; outline: none !important;
+    box-shadow: none !important; background: transparent;
+}
+
+/* Badge text info */
+.badge-info { flex: 1; position: relative; z-index: 1; }
+.badge-info h3 {
+    font-size: 1.05rem; color: var(--primary);
+    margin: 0 0 0.35rem 0; line-height: 1.4;
+}
+.badge-info .badge-issuer {
+    font-size: 0.85rem; color: var(--accent);
+    font-weight: 600; margin: 0 0 0.4rem 0;
+}
+.badge-info .badge-desc {
+    font-size: 0.85rem; opacity: 0.78;
+    line-height: 1.6; margin: 0 0 1rem 0;
+}
+
+/* Badge action button */
+.badge-btn {
+    display: inline-block;
+    font-size: 0.82rem; padding: 0.4rem 1rem;
+    border-radius: 7px; text-decoration: none;
+    font-weight: 600; border: 1.5px solid var(--primary);
+    color: var(--primary); background: transparent;
+    transition: all 0.3s ease; white-space: nowrap;
+}
+.badge-btn:hover { background: var(--primary); color: #050816; }
+
+/* Real brand colors for issuer icons instead of theme color */
+.badge-info .badge-issuer .fa-google { color: #4285F4 !important; }
+.badge-info .badge-issuer .fa-aws { color: #FF9900 !important; }
+.google-profile-info h3 .fa-google { color: #4285F4 !important; }
+.internship-preview-icon .fa-google { color: #4285F4 !important; }
+.internship-preview-icon .fa-aws { color: #FF9900 !important; }
+
+@media (max-width: 600px) {
+    .badge-row { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1.2rem; }
+    .badge-img-box { width: 90px; height: 90px; }
+    .badge-img-box img { width: 90px; height: 90px; }
+}
+
+/* Light theme — badge row */
+html[data-theme="light"] .badge-row {
+    background: linear-gradient(to right, rgba(230,240,255,0.6), rgba(255,255,255,0.6));
+    border-color: rgba(0,123,255,0.3);
+    box-shadow: 0 0 12px 2px rgba(0,0,0,0.07);
+}
+html[data-theme="light"] .badge-row:hover { box-shadow: 0 0 20px 3px rgba(0,123,255,0.22); }
+html[data-theme="light"] .badge-row::before {
+    background: linear-gradient(125deg, transparent 0%, rgba(255,255,255,0.9) 45%, rgba(255,255,255,0.6) 65%, transparent 100%);
+}
+html[data-theme="light"] .badge-info h3 { color: var(--primary); }
+html[data-theme="light"] .badge-btn { border-color: var(--primary); color: var(--primary); }
+html[data-theme="light"] .badge-btn:hover { background: var(--primary); color: #fff; }
+
+/* =======================================================
+   CERTIFICATIONS PAGES — Cert Grid & Card
+   Used on: cert-ai, cert-data-analytics, cert-programming,
+            cert-professional, cert-participation
+======================================================= */
+
+/* Responsive 3-column grid for certificate cards */
+.cert-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+@media (max-width: 1100px) { .cert-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px)  { .cert-grid { grid-template-columns: 1fr; } }
+
+/* Individual certificate card */
+.cert-card {
+    background: linear-gradient(135deg, rgba(26,31,58,0.6), rgba(51,60,100,0.4));
+    border: 2px solid rgba(0,212,255,0.3);
+    border-radius: 15px;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    transition: opacity 0.6s ease, transform 0.6s ease,
+                border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 14px 2px rgba(0,212,255,0.22);
+    will-change: opacity, transform, box-shadow;
+    position: relative;
+    overflow: hidden;
+}
+.cert-card:hover {
+    transform: translateY(-10px) translateZ(0);
+    box-shadow: 0 0 22px 4px rgba(0,212,255,0.42);
+    border-color: var(--primary);
+}
+
+/* Certificate image inside card */
+.cert-card img {
+    width: 100%; aspect-ratio: 4/3; object-fit: cover;
+    border-radius: 8px; border: 2px solid rgba(0,212,255,0.3);
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+    will-change: transform, border-color; position: relative; z-index: 1;
+}
+.cert-card img:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 12px 28px rgba(0,212,255,0.25);
+    border-color: var(--primary);
+}
+
+/* Card title and metadata */
+.cert-card h3 { font-size: 0.95rem; color: var(--primary); line-height: 1.4; margin: 0; position: relative; z-index: 1; }
+.cert-meta { font-size: 0.82rem; opacity: 0.75; line-height: 1.5; margin: 0; position: relative; z-index: 1; text-align: justify; }
+.cert-meta strong { color: var(--accent); }
+.cert-buttons { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: auto; position: relative; z-index: 1; }
+
+/* Certificate action buttons */
+.cert-btn {
+    font-size: 0.78rem; padding: 0.4rem 0.8rem; border-radius: 6px;
+    text-decoration: none; font-weight: 600; border: 1px solid var(--primary);
+    color: var(--primary); background: transparent; transition: all 0.3s ease; white-space: nowrap;
+}
+.cert-btn:hover { background: var(--primary); color: #050816; }
+.cert-btn.btn-view { border-color: var(--accent); color: var(--accent); }
+.cert-btn.btn-view:hover { background: var(--accent); color: #050816; }
+
+/* Light theme — cert card */
+html[data-theme="light"] .cert-card {
+    background: linear-gradient(to right, rgba(230,240,255,0.6), rgba(255,255,255,0.6));
+    border: 2px solid rgba(0,123,255,0.3);
+    box-shadow: 0 0 12px 2px rgba(0,0,0,0.08);
+}
+html[data-theme="light"] .cert-card:hover {
+    box-shadow: 0 0 20px 3px rgba(0,123,255,0.25);
+    border-color: var(--primary);
+}
+html[data-theme="light"] .cert-card h3 { color: var(--primary); }
+html[data-theme="light"] .cert-meta strong { color: var(--accent); }
+html[data-theme="light"] .cert-card img { border-color: rgba(0,123,255,0.3); }
+html[data-theme="light"] .cert-card img:hover { border-color: var(--primary); box-shadow: 0 12px 35px rgba(0,123,255,0.25); }
+html[data-theme="light"] .cert-btn { border-color: var(--primary); color: var(--primary); }
+html[data-theme="light"] .cert-btn:hover { background: var(--primary); color: #fff; }
+html[data-theme="light"] .cert-btn.btn-view { border-color: var(--accent); color: var(--accent); }
+html[data-theme="light"] .cert-btn.btn-view:hover { background: var(--accent); color: #fff; }
+
+/* =======================================================
+   SMOOTH ADDITIONS — Custom Cursor + Hero Parallax
+   (NEXORA-style smoothness — sirf visual additions)
+======================================================= */
+
+/* Custom cursor — desktop only */
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: auto !important; }
+  a, button, .card, .cert-card, .badge-row,
+  .project-button, .internship-btn, .cert-btn,
+  .resume-view-btn, .hero-btn, .project-image,
+  .nav-cta, .theme-switch, label, [role="button"] {
+    cursor: auto !important;
+  }
+
+  /* Neon dot — snaps instantly to mouse */
+  #smooth-cursor {
+    width: 11px;
+    height: 11px;
+    background: var(--primary);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 999999;
+    mix-blend-mode: difference;
+    transition: transform 0.1s ease;
+    will-change: transform, left, top;
+  }
+
+  /* Lagging outer ring — follows with delay (JS lerp) */
+  #smooth-cursor-ring {
+    width: 38px;
+    height: 38px;
+    border: 1.5px solid var(--primary);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 999998;
+    opacity: 0.55;
+    transition: opacity 0.3s ease, border-color 0.3s ease;
+    will-change: left, top;
+  }
+
+  /* Scale up ring on interactive elements */
+  #smooth-cursor.cursor-hover { transform: scale(2.2); }
+  #smooth-cursor-ring.cursor-hover {
+    border-color: var(--accent);
+    opacity: 0.8;
+    transform: scale(1.4);
+  }
+}
+
+body {
+    cursor: default !important;
+}
+
+a,
+button,
+.project-button,
+.internship-btn,
+.cert-btn,
+.resume-view-btn,
+.hero-btn,
+.nav-cta,
+.theme-switch,
+[role="button"] {
+    cursor: pointer !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.slider-container {
+            width: 100%;
+            max-width: 1400px;
+            overflow: hidden;
+            padding: 2rem 0;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .slider-container::before,
+        .slider-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 100px;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .slider-container::before {
+            left: 0;
+            background: linear-gradient(90deg, #0a0a1a, transparent);
+        }
+
+        .slider-container::after {
+            right: 0;
+            background: linear-gradient(270deg, #0a0a1a, transparent);
+        }
+
+        .slider-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .slider-title span {
+            background: linear-gradient(135deg, #00d4ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .slider-track-wrapper {
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+            padding: 1rem 0;
+        }
+
+        .slider-track {
+            display: flex;
+            gap: 2rem;
+            width: max-content;
+            animation: scroll 25s linear infinite;
+            padding: 0 1rem;
+        }
+
+        .slider-track:hover {
+            animation-play-state: paused;
+        }
+
+        .project-card {
+            min-width: 280px;
+            max-width: 280px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.4s ease;
+            backdrop-filter: blur(4px);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 212, 255, 0.03), transparent 60%);
+            pointer-events: none;
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: #00d4ff;
+            box-shadow: 0 15px 40px rgba(0, 212, 255, 0.15);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .project-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+            display: block;
+        }
+
+        .project-card h3 {
+            color: #00d4ff;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .project-card p {
+            color: #aaa;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: 0.8rem;
+        }
+
+        .project-card .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+
+        .project-card .tech-stack span {
+            background: rgba(0, 212, 255, 0.08);
+            color: #00d4ff;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            letter-spacing: 0.3px;
+        }
+
+        .project-card .btn-group {
+            display: flex;
+            gap: 0.6rem;
+            margin-top: 1rem;
+        }
+
+        .project-card .btn-group a {
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s ease;
+        }
+
+        .btn-github {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ccc;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-github:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+
+        .btn-demo {
+            background: linear-gradient(135deg, #00d4ff, #a855f7);
+            color: #fff;
+            border: none;
+        }
+
+        .btn-demo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        /* ===== ANIMATION ===== */
+        @keyframes scroll {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .slider-title {
+                font-size: 1.8rem;
+            }
+            .project-card {
+                min-width: 230px;
+                max-width: 230px;
+                padding: 1.2rem;
+            }
+            .project-card .icon {
+                font-size: 2rem;
+            }
+            .project-card h3 {
+                font-size: 1rem;
+            }
+            .slider-container::before,
+            .slider-container::after {
+                width: 50px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .project-card {
+                min-width: 190px;
+                max-width: 190px;
+                padding: 1rem;
+            }
+            .project-card .icon {
+                font-size: 1.6rem;
+            }
+            .project-card h3 {
+                font-size: 0.9rem;
+            }
+            .project-card p {
+                font-size: 0.75rem;
+            }
+            .project-card .btn-group a {
+                font-size: 0.65rem;
+                padding: 0.3rem 0.8rem;
+            }
+        }
